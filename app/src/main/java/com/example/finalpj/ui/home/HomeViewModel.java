@@ -1,6 +1,8 @@
 package com.example.finalpj.ui.home;
 
 import android.app.Application;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -8,9 +10,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
-
-import android.os.Handler;
-import android.os.Looper;
 
 import com.example.finalpj.data.db.entity.Budget;
 import com.example.finalpj.data.db.entity.Category;
@@ -29,12 +28,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * ViewModel quản lý dữ liệu cho màn hình Trang chủ (Home).
+ * Sử dụng LiveData để kết nối dữ liệu từ Repository đến Fragment.
+ */
 public class HomeViewModel extends AndroidViewModel {
     private TransactionRepository repository;
     private BudgetRepository budgetRepository;
     private CategoryRepository categoryRepository;
+    
+    // Lưu giữ tháng/năm đang được chọn để xem báo cáo
     private MutableLiveData<String> currentMonthYear = new MutableLiveData<>();
+    // Lưu giữ từ khóa tìm kiếm của người dùng
     private MutableLiveData<String> searchQuery = new MutableLiveData<>("");
+    
+    // Cơ chế Debounce để trì hoãn việc tìm kiếm khi người dùng đang gõ phím
     private Handler searchHandler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
 
@@ -43,7 +51,8 @@ public class HomeViewModel extends AndroidViewModel {
         repository = new TransactionRepository(application);
         budgetRepository = new BudgetRepository(application);
         categoryRepository = new CategoryRepository(application);
-        // Set tháng hiện tại
+        
+        // Mặc định thiết lập tháng xem báo cáo là tháng hiện tại
         Calendar cal = Calendar.getInstance();
         String monthYear = String.format("%02d-%d",
                 cal.get(Calendar.MONTH) + 1,
@@ -51,21 +60,25 @@ public class HomeViewModel extends AndroidViewModel {
         currentMonthYear.setValue(monthYear);
     }
 
+    // Lấy LiveData tổng thu nhập dựa trên tháng đang chọn
     public LiveData<Double> getTotalIncome() {
         return Transformations.switchMap(currentMonthYear,
                 monthYear -> repository.getTotalIncome(monthYear));
     }
 
+    // Lấy LiveData tổng chi tiêu dựa trên tháng đang chọn
     public LiveData<Double> getTotalExpense() {
         return Transformations.switchMap(currentMonthYear,
                 monthYear -> repository.getTotalExpense(monthYear));
     }
 
+    // Lấy LiveData số dư dựa trên tháng đang chọn
     public LiveData<Double> getBalance() {
         return Transformations.switchMap(currentMonthYear,
                 monthYear -> repository.getBalance(monthYear));
     }
 
+    // Lấy danh sách giao dịch của tháng đang chọn
     public LiveData<List<TransactionWithCategory>> getRecentTransactions() {
         return Transformations.switchMap(currentMonthYear, monthYear -> {
             String[] parts = monthYear.split("-");
@@ -76,6 +89,10 @@ public class HomeViewModel extends AndroidViewModel {
         });
     }
 
+    /**
+     * Chức năng tìm kiếm thông minh.
+     * Kết hợp nhiều nguồn dữ liệu (Toàn bộ giao dịch và Từ khóa search) để lọc kết quả.
+     */
     public LiveData<List<TransactionWithCategory>> getSearchResults() {
         MediatorLiveData<List<TransactionWithCategory>> result = new MediatorLiveData<>();
         LiveData<List<TransactionWithCategory>> allSource = repository.getAll();
@@ -91,6 +108,9 @@ public class HomeViewModel extends AndroidViewModel {
         return result;
     }
 
+    /**
+     * Logic lọc giao dịch dựa trên từ khóa (bỏ qua dấu tiếng Việt).
+     */
     private void filterTransactions(MediatorLiveData<List<TransactionWithCategory>> result, 
                                     List<TransactionWithCategory> all, 
                                     String query) {
@@ -99,7 +119,6 @@ public class HomeViewModel extends AndroidViewModel {
         List<TransactionWithCategory> filtered = new ArrayList<>();
         boolean isEmptyQuery = (query == null || query.isEmpty());
         
-        // Lấy tháng/năm hiện tại để lọc nếu không có query
         String[] parts = currentMonthYear.getValue() != null ? currentMonthYear.getValue().split("-") : new String[0];
         String currentMonth = parts.length > 0 ? parts[0] : "";
         String currentYear = parts.length > 1 ? parts[1] : "";
@@ -116,7 +135,7 @@ public class HomeViewModel extends AndroidViewModel {
                     filtered.add(item);
                 }
             } else {
-                // Nếu có search, tìm kiếm trên toàn bộ dữ liệu
+                // Nếu có search, tìm kiếm không dấu trên toàn bộ lịch sử
                 String categoryName = item.category != null ? item.category.name : "";
                 String note = item.transaction.note != null ? item.transaction.note : "";
                 
@@ -128,14 +147,18 @@ public class HomeViewModel extends AndroidViewModel {
         result.setValue(filtered);
     }
 
+    /**
+     * Thiết lập từ khóa tìm kiếm kèm theo cơ chế Debounce để sửa lỗi gõ tiếng Việt.
+     */
     public void setSearchQuery(String query) {
         if (searchRunnable != null) {
             searchHandler.removeCallbacks(searchRunnable);
         }
         searchRunnable = () -> searchQuery.setValue(query);
-        searchHandler.postDelayed(searchRunnable, 400); // Đợi 400ms sau khi ngừng gõ mới tìm
+        searchHandler.postDelayed(searchRunnable, 400); 
     }
 
+    // Lấy dữ liệu ngân sách (Budget)
     public LiveData<List<Budget>> getBudgets() {
         return Transformations.switchMap(currentMonthYear, monthYear -> {
             String[] parts = monthYear.split("-");
@@ -144,14 +167,20 @@ public class HomeViewModel extends AndroidViewModel {
         });
     }
 
+    // Lấy danh sách tất cả danh mục
     public LiveData<List<Category>> getAllCategories() {
         return categoryRepository.getAll();
     }
 
+    // Lấy chi tiêu theo danh mục (cho thống kê)
     public LiveData<List<com.example.finalpj.data.db.entity.CategoryExpense>> getExpenseByCategory() {
         return Transformations.switchMap(currentMonthYear, monthYear -> repository.getExpenseByCategory(monthYear));
     }
 
+    /**
+     * Kết hợp dữ liệu Ngân sách, Danh mục và Chi tiêu thực tế 
+     * để hiển thị thanh tiến độ (ProgressBar) ngân sách.
+     */
     public LiveData<List<BudgetAdapter.BudgetWithProgress>> getBudgetStatus() {
         MediatorLiveData<List<BudgetAdapter.BudgetWithProgress>> result = new MediatorLiveData<>();
 
@@ -199,6 +228,7 @@ public class HomeViewModel extends AndroidViewModel {
         result.setValue(statusList);
     }
 
+    // Thay đổi tháng xem báo cáo
     public void setMonth(int month, int year) {
         currentMonthYear.setValue(String.format("%02d-%d", month, year));
     }

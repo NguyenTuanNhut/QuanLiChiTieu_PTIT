@@ -13,71 +13,83 @@ import com.example.finalpj.data.db.entity.TransactionWithCategory;
 
 import java.util.List;
 
+/**
+ * Interface định nghĩa các câu lệnh SQL để tương tác với bảng transactions.
+ * Sử dụng thư viện Room để tự động sinh mã thực thi.
+ */
 @Dao
 public interface TransactionDao {
 
-        // Thêm giao dịch mới
-        @Insert
-        void insert(Transaction transaction);
+    // Thêm một giao dịch mới vào Database
+    @Insert
+    void insert(Transaction transaction);
 
-        // Xóa giao dịch
-        @Delete
-        void delete(Transaction transaction);
+    // Xóa một giao dịch hiện có
+    @Delete
+    void delete(Transaction transaction);
 
-        // Cập nhật
-        @Update
-        void update(Transaction transaction);
+    // Cập nhật thông tin giao dịch
+    @Update
+    void update(Transaction transaction);
 
-        // Lấy tất cả giao dịch theo tháng (mới nhất trước)
-        @Query("SELECT * FROM transactions " +
-                        "WHERE strftime('%m', date/1000, 'unixepoch') = :month " +
-                        "AND strftime('%Y', date/1000, 'unixepoch') = :year " +
-                        "ORDER BY date DESC")
-        LiveData<List<TransactionWithCategory>> getByMonth(String month, String year);
+    /**
+     * Lấy danh sách giao dịch kèm theo thông tin danh mục theo tháng và năm.
+     * Trả về LiveData để tự động cập nhật UI khi dữ liệu thay đổi.
+     */
+    @Query("SELECT * FROM transactions " +
+            "WHERE strftime('%m', date/1000, 'unixepoch') = :month " +
+            "AND strftime('%Y', date/1000, 'unixepoch') = :year " +
+            "ORDER BY date DESC")
+    LiveData<List<TransactionWithCategory>> getByMonth(String month, String year);
 
-        // Lấy giao dịch theo ID
-        @Query("SELECT * FROM transactions WHERE id = :id LIMIT 1")
-        LiveData<Transaction> getById(int id);
+    // Tìm kiếm giao dịch cụ thể theo ID
+    @Query("SELECT * FROM transactions WHERE id = :id LIMIT 1")
+    LiveData<Transaction> getById(int id);
 
-        // Tổng thu nhập trong tháng
-        @Query("SELECT COALESCE(SUM(amount), 0) FROM transactions " +
-                        "WHERE type = 'INCOME' " +
-                        "AND strftime('%m-%Y', date/1000, 'unixepoch') = :monthYear")
-        LiveData<Double> getTotalIncome(String monthYear);
+    // Tính tổng số tiền thu nhập trong một tháng cụ thể
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM transactions " +
+            "WHERE type = 'INCOME' " +
+            "AND strftime('%m-%Y', date/1000, 'unixepoch') = :monthYear")
+    LiveData<Double> getTotalIncome(String monthYear);
 
-        // Tổng chi tiêu trong tháng
-        @Query("SELECT COALESCE(SUM(amount), 0) FROM transactions " +
-                        "WHERE type = 'EXPENSE' " +
-                        "AND strftime('%m-%Y', date/1000, 'unixepoch') = :monthYear")
-        LiveData<Double> getTotalExpense(String monthYear);
+    // Tính tổng số tiền đã chi tiêu trong một tháng cụ thể
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM transactions " +
+            "WHERE type = 'EXPENSE' " +
+            "AND strftime('%m-%Y', date/1000, 'unixepoch') = :monthYear")
+    LiveData<Double> getTotalExpense(String monthYear);
 
-        // Derived balance: tổng thu nhập - tổng chi tiêu trong tháng
-        @Query("SELECT COALESCE(SUM(CASE WHEN type = 'INCOME' THEN amount ELSE -amount END), 0) " +
-                        "FROM transactions " +
-                        "WHERE strftime('%m-%Y', date/1000, 'unixepoch') = :monthYear")
-        LiveData<Double> getBalance(String monthYear);
+    /**
+     * Tính số dư (Balance) trong tháng.
+     * Công thức: Tổng Thu nhập - Tổng Chi tiêu.
+     */
+    @Query("SELECT COALESCE(SUM(CASE WHEN type = 'INCOME' THEN amount ELSE -amount END), 0) " +
+            "FROM transactions " +
+            "WHERE strftime('%m-%Y', date/1000, 'unixepoch') = :monthYear")
+    LiveData<Double> getBalance(String monthYear);
 
-        // Chi tiêu theo từng danh mục (cho biểu đồ)
-        @Query("SELECT c.name AS categoryName, SUM(t.amount) AS total " +
-                        "FROM transactions t " +
-                        "INNER JOIN categories c ON t.category_id = c.id " +
-                        "WHERE t.type = 'EXPENSE' " +
-                        "AND strftime('%m-%Y', t.date/1000, 'unixepoch') = :monthYear " +
-                        "GROUP BY c.id")
-        LiveData<List<CategoryExpense>> getExpenseByCategory(String monthYear);
+    /**
+     * Thống kê tổng chi tiêu theo từng danh mục.
+     * Dùng để hiển thị dữ liệu lên biểu đồ tròn (PieChart).
+     */
+    @Query("SELECT c.name AS categoryName, SUM(t.amount) AS total " +
+            "FROM transactions t " +
+            "INNER JOIN categories c ON t.category_id = c.id " +
+            "WHERE t.type = 'EXPENSE' " +
+            "AND strftime('%m-%Y', t.date/1000, 'unixepoch') = :monthYear " +
+            "GROUP BY c.id")
+    LiveData<List<CategoryExpense>> getExpenseByCategory(String monthYear);
 
-        // Lấy tất cả giao dịch (cho việc tìm kiếm thông minh ở ViewModel)
-        @Query("SELECT t.* FROM transactions t " +
-                "LEFT JOIN categories c ON t.category_id = c.id " +
-                "ORDER BY t.date DESC")
-        LiveData<List<TransactionWithCategory>> getAllTransactions();
+    // Lấy toàn bộ giao dịch từ trước đến nay (hỗ trợ cho chức năng tìm kiếm toàn cục)
+    @Query("SELECT t.* FROM transactions t " +
+            "LEFT JOIN categories c ON t.category_id = c.id " +
+            "ORDER BY t.date DESC")
+    LiveData<List<TransactionWithCategory>> getAllTransactions();
 
-        // Tìm kiếm giao dịch tương đối
-        @Query("SELECT t.* FROM transactions t " +
-                "LEFT JOIN categories c ON t.category_id = c.id " +
-                "WHERE t.note LIKE '%' || :query || '%' " +
-                "OR c.name LIKE '%' || :query || '%' " +
-                "ORDER BY t.date DESC")
-        LiveData<List<TransactionWithCategory>> searchTransactions(String query);
-
+    // Tìm kiếm giao dịch theo từ khóa trong ghi chú hoặc tên danh mục
+    @Query("SELECT t.* FROM transactions t " +
+            "LEFT JOIN categories c ON t.category_id = c.id " +
+            "WHERE t.note LIKE '%' || :query || '%' " +
+            "OR c.name LIKE '%' || :query || '%' " +
+            "ORDER BY t.date DESC")
+    LiveData<List<TransactionWithCategory>> searchTransactions(String query);
 }

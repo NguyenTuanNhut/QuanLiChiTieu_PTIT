@@ -13,54 +13,64 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Lớp Repository đóng vai trò là tầng trung gian điều phối dữ liệu.
+ * Giúp tách biệt logic truy cập dữ liệu (Database) khỏi Logic nghiệp vụ (ViewModel).
+ */
 public class TransactionRepository {
     private TransactionDao transactionDao;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public TransactionRepository(Application application) {
+        // Lấy instance của Database và DAO
         AppDatabase db = AppDatabase.getInstance(application);
         transactionDao = db.transactionDao();
     }
 
-    // Thêm giao dịch (chạy trên background thread)
+    /**
+     * Thêm giao dịch mới. 
+     * Lưu ý: Mọi thao tác ghi vào DB (Insert/Update/Delete) phải chạy trên luồng phụ (Background thread).
+     */
     public void insert(Transaction transaction) {
         executor.execute(() -> transactionDao.insert(transaction));
     }
 
-    // Xóa giao dịch
+    // Xóa giao dịch (chạy ngầm)
     public void delete(Transaction transaction) {
         executor.execute(() -> transactionDao.delete(transaction));
     }
 
+    // Cập nhật giao dịch (chạy ngầm)
     public void update(Transaction transaction) {
         executor.execute(() -> transactionDao.update(transaction));
     }
 
+    // Lấy giao dịch cụ thể theo ID
     public LiveData<Transaction> getById(int id) {
         return transactionDao.getById(id);
     }
 
-    // Lấy giao dịch theo tháng
+    // Lấy danh sách giao dịch kèm danh mục theo tháng/năm
     public LiveData<List<TransactionWithCategory>> getByMonth(String month, String year) {
         return transactionDao.getByMonth(month, year);
     }
 
-    // Tổng chi tiêu tháng
+    // Lấy tổng chi tiêu của tháng
     public LiveData<Double> getTotalExpense(String monthYear) {
         return transactionDao.getTotalExpense(monthYear);
     }
 
-    // Tổng thu nhập tháng
+    // Lấy tổng thu nhập của tháng
     public LiveData<Double> getTotalIncome(String monthYear) {
         return transactionDao.getTotalIncome(monthYear);
     }
 
-    // Derived balance
+    // Lấy số dư hiện tại trong tháng
     public LiveData<Double> getBalance(String monthYear) {
         return transactionDao.getBalance(monthYear);
     }
 
-    // Chi tiêu theo danh mục
+    // Lấy dữ liệu thống kê chi tiêu theo danh mục
     public LiveData<List<com.example.finalpj.data.db.entity.CategoryExpense>> getExpenseByCategory(String monthYear) {
         return transactionDao.getExpenseByCategory(monthYear);
     }
@@ -70,6 +80,7 @@ public class TransactionRepository {
         return transactionDao.searchTransactions(query);
     }
 
+    // Lấy toàn bộ lịch sử giao dịch
     public LiveData<List<TransactionWithCategory>> getAll() {
         return transactionDao.getAllTransactions();
     }

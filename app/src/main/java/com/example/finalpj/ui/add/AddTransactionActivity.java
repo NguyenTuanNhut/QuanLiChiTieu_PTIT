@@ -20,18 +20,21 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Calendar;
 
+/**
+ * Activity xử lý việc Thêm mới hoặc Chỉnh sửa một giao dịch.
+ */
 public class AddTransactionActivity extends AppCompatActivity {
     public static final String EXTRA_TRANSACTION_ID = "extra_transaction_id";
 
     private TextInputEditText etAmount, etNote, etDate;
     private MaterialButton btnDelete;
     private AddViewModel viewModel;
-    private String selectedType = "EXPENSE";
+    private String selectedType = "EXPENSE"; // Mặc định là Chi tiêu
     private int selectedCategoryId = -1;
     private long selectedDate;
     private CategoryAdapter categoryAdapter;
     private Transaction currentTransaction;
-    private boolean isEditMode = false;
+    private boolean isEditMode = false; // Cờ xác định đang Thêm mới hay Chỉnh sửa
     private boolean isProgrammaticTabSelect = false;
 
     @Override
@@ -39,19 +42,21 @@ public class AddTransactionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_transaction);
 
+        // Khởi tạo ViewModel và ánh xạ View
         viewModel = new ViewModelProvider(this).get(AddViewModel.class);
         etAmount = findViewById(R.id.et_amount);
         etNote = findViewById(R.id.et_note);
         etDate = findViewById(R.id.et_date);
         btnDelete = findViewById(R.id.btn_delete);
 
+        // Mặc định chọn ngày hiện tại
         selectedDate = System.currentTimeMillis();
         etDate.setText(DateUtils.formatDate(selectedDate));
 
-        // Mở DatePicker khi click vào ô ngày
+        // Mở DatePicker khi click vào ô nhập ngày
         etDate.setOnClickListener(v -> showDatePicker());
 
-        // TabLayout chọn Thu/Chi
+        // Cấu hình TabLayout để chuyển đổi giữa Thu nhập và Chi tiêu
         TabLayout tabType = findViewById(R.id.tab_type);
         tabType.addTab(tabType.newTab().setText("Chi tiêu"));
         tabType.addTab(tabType.newTab().setText("Thu nhập"));
@@ -59,28 +64,24 @@ public class AddTransactionActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 selectedType = tab.getPosition() == 0 ? "EXPENSE" : "INCOME";
+                // Load danh sách danh mục tương ứng với loại đang chọn
                 viewModel.loadCategories(selectedType);
                 if (!isProgrammaticTabSelect) {
-                    selectedCategoryId = -1; // Reset khi người dùng đổi loại
+                    selectedCategoryId = -1; // Reset danh mục khi đổi loại
                 }
                 isProgrammaticTabSelect = false;
             }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-            }
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        // Nút lưu / xóa
+        // Xử lý sự kiện nút Lưu và nút Xóa
         findViewById(R.id.btn_save).setOnClickListener(v -> saveTransaction());
         btnDelete.setOnClickListener(v -> deleteTransaction());
-        btnDelete.setVisibility(View.GONE);
+        btnDelete.setVisibility(View.GONE); // Mặc định ẩn nút Xóa nếu là thêm mới
 
-        // Setup RecyclerView for Categories
+        // Cấu hình danh sách Danh mục dưới dạng lưới (Grid)
         RecyclerView rvCategories = findViewById(R.id.rv_categories);
         rvCategories.setLayoutManager(new GridLayoutManager(this, 4));
         categoryAdapter = new CategoryAdapter();
@@ -90,7 +91,7 @@ public class AddTransactionActivity extends AppCompatActivity {
             selectedCategoryId = category.id;
         });
 
-        // Observe categories
+        // Quan sát danh sách danh mục từ ViewModel
         viewModel.categories.observe(this, categories -> {
             if (categories != null) {
                 categoryAdapter.setCategories(categories);
@@ -100,10 +101,11 @@ public class AddTransactionActivity extends AppCompatActivity {
             }
         });
 
+        // Kiểm tra xem có nhận được ID giao dịch không (để vào chế độ Chỉnh sửa)
         int transactionId = getIntent().getIntExtra(EXTRA_TRANSACTION_ID, -1);
         if (transactionId != -1) {
             isEditMode = true;
-            btnDelete.setVisibility(View.VISIBLE);
+            btnDelete.setVisibility(View.VISIBLE); // Hiện nút Xóa trong chế độ chỉnh sửa
             viewModel.getTransactionById(transactionId).observe(this, transaction -> {
                 if (transaction != null) {
                     currentTransaction = transaction;
@@ -115,6 +117,9 @@ public class AddTransactionActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Điền dữ liệu cũ vào các ô nhập liệu khi ở chế độ Chỉnh sửa.
+     */
     private void populateTransaction(Transaction transaction, TabLayout tabType) {
         selectedCategoryId = transaction.categoryId;
         selectedType = transaction.type;
@@ -129,13 +134,15 @@ public class AddTransactionActivity extends AppCompatActivity {
             isProgrammaticTabSelect = true;
             tab.select();
         }
-        // categories sẽ được nạp và chọn lại khi observable kích hoạt
     }
 
+    /**
+     * Thực hiện lưu giao dịch (Insert hoặc Update) vào Database.
+     */
     private void saveTransaction() {
         String amountStr = etAmount.getText().toString().trim();
 
-        // Validation
+        // Kiểm tra tính hợp lệ của dữ liệu (Validation)
         if (amountStr.isEmpty()) {
             etAmount.setError("Vui lòng nhập số tiền");
             return;
@@ -173,6 +180,7 @@ public class AddTransactionActivity extends AppCompatActivity {
         t.note = etNote.getText().toString().trim();
         t.date = selectedDate;
 
+        // Gọi ViewModel để thực hiện lưu
         if (isEditMode) {
             viewModel.update(t);
             Toast.makeText(this, "Đã cập nhật giao dịch", Toast.LENGTH_SHORT).show();
@@ -180,9 +188,12 @@ public class AddTransactionActivity extends AppCompatActivity {
             viewModel.insert(t);
             Toast.makeText(this, "Đã lưu!", Toast.LENGTH_SHORT).show();
         }
-        finish();
+        finish(); // Đóng màn hình sau khi lưu xong
     }
 
+    /**
+     * Xử lý xóa giao dịch.
+     */
     private void deleteTransaction() {
         if (currentTransaction != null) {
             viewModel.delete(currentTransaction);
@@ -191,6 +202,9 @@ public class AddTransactionActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Hiển thị hộp thoại chọn ngày.
+     */
     private void showDatePicker() {
         Calendar cal = Calendar.getInstance();
         new DatePickerDialog(this,
