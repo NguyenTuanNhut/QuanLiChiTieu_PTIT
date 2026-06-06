@@ -155,7 +155,11 @@ public class MainActivity extends AppCompatActivity {
             String currentLang = LocaleHelper.getLanguage(this);
             String newLang = currentLang.equals("vi") ? "en" : "vi";
             LocaleHelper.setLocale(this, newLang);
-            recreate();
+            
+            // Khởi động lại Activity để áp dụng ngôn ngữ mới cho toàn bộ ứng dụng
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
             return true;
         }
 

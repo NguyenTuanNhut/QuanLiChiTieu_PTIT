@@ -23,6 +23,7 @@
     <string name="stats_title">Thống kê chi tiêu</string>
     <string name="export_pdf">Xuất báo cáo PDF</string>
     <string name="profile_title">Cá nhân</string>
+    <string name="full_name">Họ và tên</string>
     <string name="logout">Đăng xuất</string>
     <string name="save">Lưu</string>
 

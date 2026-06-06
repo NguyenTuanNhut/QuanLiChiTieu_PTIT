@@ -23,6 +23,7 @@
     <string name="stats_title">Spending Statistics</string>
     <string name="export_pdf">Export PDF Report</string>
     <string name="profile_title">Profile</string>
+    <string name="full_name">Full Name</string>
     <string name="logout">Logout</string>
     <string name="save">Save</string>
 

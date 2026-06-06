@@ -11,7 +11,7 @@
         android:id="@+id/action_language"
         android:title="Ngôn ngữ"
         app:showAsAction="ifRoom"
-        android:icon="@android:drawable/ic_menu_search" />
+        android:icon="@drawable/language_24px" />
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
