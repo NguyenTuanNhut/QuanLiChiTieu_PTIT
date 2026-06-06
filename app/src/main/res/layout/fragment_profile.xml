@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:hint="Họ và tên"
+        android:hint="@string/full_name"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_profile_name"
@@ -44,7 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginTop="24dp"
-        android:text="LƯU THAY ĐỔI"
+        android:text="@string/save"
         app:cornerRadius="12dp"/>
 
     <View
@@ -57,7 +57,7 @@
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="ĐĂNG XUẤT"
+        android:text="@string/logout"
         android:textColor="#F44336"
         app:cornerRadius="12dp"
         android:layout_marginBottom="16dp"/>

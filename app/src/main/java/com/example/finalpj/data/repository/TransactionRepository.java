@@ -88,4 +88,8 @@ public class TransactionRepository {
     public List<TransactionWithCategory> getPaged(int userId, int limit, int offset) {
         return transactionDao.getTransactionsPaged(userId, limit, offset);
     }
+
+    public LiveData<Integer> getCount(int userId) {
+        return transactionDao.getTransactionCount(userId);
+    }
 }

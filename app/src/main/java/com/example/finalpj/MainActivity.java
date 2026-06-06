@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Tại đây em khởi tạo NavController. Thành phần này chịu trách nhiệm quản lý việc điều hướng giữa các Fragment trong ứng dụng
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_main);
+        if (navHostFragment == null) return;
         NavController navController = navHostFragment.getNavController();
         
         // Ở đây em khai báo các màn hình chính của ứng dụng
@@ -124,11 +125,11 @@ public class MainActivity extends AppCompatActivity {
             int currentMode = AppCompatDelegate.getDefaultNightMode();
             if (currentMode == AppCompatDelegate.MODE_NIGHT_YES) {
                 // Đang ở chế độ tối -> hiện icon mặt trời (để chuyển sang sáng)
-                themeItem.setIcon(android.R.drawable.ic_menu_compass);
+                themeItem.setIcon(R.drawable.light_mode_24px);
                 themeItem.setTitle("Chế độ sáng");
             } else {
                 // Đang ở chế độ sáng -> hiện icon mặt trăng (để chuyển sang tối)
-                themeItem.setIcon(android.R.drawable.ic_menu_recent_history);
+                themeItem.setIcon(R.drawable.mode_night_24px);
                 themeItem.setTitle("Chế độ tối");
             }
         }
@@ -176,8 +177,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         // Xử lý nút quay lại (Back) trên ActionBar khi sử dụng Navigation Component
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_main);
-        NavController navController = navHostFragment.getNavController();
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
+        if (navHostFragment != null) {
+            NavController navController = navHostFragment.getNavController();
+            return NavigationUI.navigateUp(navController, appBarConfiguration)
+                    || super.onSupportNavigateUp();
+        }
+        return super.onSupportNavigateUp();
     }
 }

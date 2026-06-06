@@ -63,6 +63,11 @@ public class HomeViewModel extends AndroidViewModel {
                 cal.get(Calendar.MONTH) + 1,
                 cal.get(Calendar.YEAR));
         currentMonthYear.setValue(monthYear);
+
+        // Tự động làm mới danh sách phân trang khi database thay đổi (thêm/xóa giao dịch)
+        pagedTransactions.addSource(repository.getCount(currentUserId), count -> {
+            refreshTransactions();
+        });
     }
 
     // Lấy LiveData tổng thu nhập dựa trên tháng đang chọn
@@ -248,14 +253,14 @@ public class HomeViewModel extends AndroidViewModel {
     }
 
     // --- Infinite Scroll Logic ---
-    private MutableLiveData<List<TransactionWithCategory>> pagedTransactions = new MutableLiveData<>(new ArrayList<>());
+    private MediatorLiveData<List<TransactionWithCategory>> pagedTransactions = new MediatorLiveData<>();
     private int currentPage = 0;
     private static final int PAGE_SIZE = 20;
     private boolean isLastPage = false;
     private boolean isLoading = false;
 
     public LiveData<List<TransactionWithCategory>> getPagedTransactions() {
-        if (pagedTransactions.getValue().isEmpty()) {
+        if (pagedTransactions.getValue() == null) {
             loadNextPage();
         }
         return pagedTransactions;
@@ -271,7 +276,7 @@ public class HomeViewModel extends AndroidViewModel {
                 isLastPage = true;
             } else {
                 List<TransactionWithCategory> currentList = pagedTransactions.getValue();
-                List<TransactionWithCategory> updatedList = new ArrayList<>(currentList);
+                List<TransactionWithCategory> updatedList = new ArrayList<>(currentList != null ? currentList : new ArrayList<>());
                 updatedList.addAll(newData);
                 pagedTransactions.postValue(updatedList);
                 currentPage++;

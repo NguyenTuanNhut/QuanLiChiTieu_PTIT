@@ -98,6 +98,9 @@ public interface TransactionDao {
             "LIMIT :limit OFFSET :offset")
     List<TransactionWithCategory> getTransactionsPaged(int userId, int limit, int offset);
 
+    @Query("SELECT COUNT(*) FROM transactions WHERE user_id = :userId")
+    LiveData<Integer> getTransactionCount(int userId);
+
     // Tìm kiếm giao dịch theo từ khóa trong ghi chú hoặc tên danh mục
     @Query("SELECT t.* FROM transactions t " +
             "LEFT JOIN categories c ON t.category_id = c.id " +

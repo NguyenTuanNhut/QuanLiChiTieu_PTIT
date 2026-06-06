@@ -6,7 +6,7 @@
         android:id="@+id/action_theme"
         android:title="Đổi giao diện"
         app:showAsAction="ifRoom"
-        android:icon="@android:drawable/ic_menu_recent_history" />
+        android:icon="@drawable/light_mode_24px" />
     <item
         android:id="@+id/action_language"
         android:title="Ngôn ngữ"

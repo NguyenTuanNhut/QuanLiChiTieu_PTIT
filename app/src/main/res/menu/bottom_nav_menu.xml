@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/HomeFragment"
-        android:icon="@android:drawable/ic_menu_today"
+        android:icon="@drawable/home_24px"
         android:title="Trang chủ" />
     <item
         android:id="@+id/HistoryFragment"

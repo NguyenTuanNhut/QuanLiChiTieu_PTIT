@@ -6,17 +6,25 @@
     <string name="nav_goals">Mục tiêu</string>
     <string name="nav_history">Lịch sử</string>
 
-    <string name="total_balance">Tổng số dư</string>
-    <string name="income">Thu nhập</string>
-    <string name="expense">Chi tiêu</string>
-    <string name="search_hint">Tìm kiếm giao dịch…</string>
-    <string name="recent_transactions">Giao dịch gần đây</string>
-    <string name="budget_limit">Ngân sách</string>
+    <string name="total_balance">Số dư</string>
+    <string name="income_label">↑ Thu nhập</string>
+    <string name="expense_label">↓ Chi tiêu</string>
+    <string name="monthly_budget">Ngân sách tháng</string>
 
     <string name="delete_confirm">Bạn có chắc chắn muốn xóa?</string>
-    <string name="transaction_deleted">Đã xóa giao dịch</string>
-    <string name="edit">Sửa</string>
-    <string name="delete">Xóa</string>
+    <string name="recent_transactions">Giao dịch gần đây</string>
+    <string name="search_hint">Tìm kiếm giao dịch...</string>
+    <string name="history_title">Lịch sử giao dịch</string>
+    <string name="filter_all">Tất cả</string>
+    <string name="filter_income">Thu nhập</string>
+    <string name="filter_expense">Chi tiêu</string>
+    <string name="goals_title">Mục tiêu tiết kiệm</string>
+    <string name="add_goal">THÊM MỤC TIÊU MỚI</string>
+    <string name="stats_title">Thống kê chi tiêu</string>
+    <string name="export_pdf">Xuất báo cáo PDF</string>
+    <string name="profile_title">Cá nhân</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="save">Lưu</string>
 
     <string name="first_fragment_label">Màn hình một</string>
     <string name="second_fragment_label">Màn hình hai</string>

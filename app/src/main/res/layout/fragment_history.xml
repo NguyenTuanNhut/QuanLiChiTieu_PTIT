@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Lịch sử giao dịch"
+        android:text="@string/history_title"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"
@@ -30,7 +30,7 @@
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tất cả"
+            android:text="@string/filter_all"
             android:checked="true"/>
 
         <com.google.android.material.chip.Chip
@@ -38,14 +38,14 @@
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Thu nhập"/>
+            android:text="@string/filter_income"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_expense"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chi tiêu"/>
+            android:text="@string/filter_expense"/>
     </com.google.android.material.chip.ChipGroup>
 
     <androidx.recyclerview.widget.RecyclerView
