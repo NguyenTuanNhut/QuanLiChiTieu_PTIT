@@ -12,11 +12,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.finalpj.R;
 import com.example.finalpj.data.db.entity.Transaction;
+import com.example.finalpj.data.db.entity.Category;
 import com.example.finalpj.ui.adapter.CategoryAdapter;
 import com.example.finalpj.utils.DateUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
+import androidx.appcompat.app.AlertDialog;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.graphics.Color;
 
 import java.util.Calendar;
 
@@ -90,6 +95,8 @@ public class AddTransactionActivity extends AppCompatActivity {
         categoryAdapter.setOnCategoryClickListener(category -> {
             selectedCategoryId = category.id;
         });
+
+        findViewById(R.id.tv_add_category).setOnClickListener(v -> showAddCategoryDialog());
 
         // Quan sát danh sách danh mục từ ViewModel
         viewModel.categories.observe(this, categories -> {
@@ -216,5 +223,38 @@ public class AddTransactionActivity extends AppCompatActivity {
                 cal.get(Calendar.YEAR),
                 cal.get(Calendar.MONTH),
                 cal.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+    private void showAddCategoryDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Thêm danh mục mới");
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(50, 20, 50, 20);
+
+        final EditText input = new EditText(this);
+        input.setHint("Tên danh mục");
+        layout.addView(input);
+
+        final EditText colorInput = new EditText(this);
+        colorInput.setHint("Mã màu (vd: #FF5252)");
+        colorInput.setText("#2196F3");
+        layout.addView(colorInput);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton("Lưu", (dialog, which) -> {
+            String name = input.getText().toString().trim();
+            String color = colorInput.getText().toString().trim();
+            if (!name.isEmpty()) {
+                Category newCat = new Category(name, "ic_category_default", color, selectedType);
+                viewModel.insertCategory(newCat);
+                Toast.makeText(this, "Đã thêm danh mục " + name, Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
+
+        builder.show();
     }
 }

@@ -11,6 +11,9 @@ import com.example.finalpj.data.db.entity.Account;
 
 import java.util.List;
 
+/**
+ * Interface DAO để thao tác với bảng 'accounts'.
+ */
 @Dao
 public interface AccountDao {
 
@@ -23,6 +26,7 @@ public interface AccountDao {
     @Delete
     void delete(Account account);
 
+    // Lấy toàn bộ danh sách tài khoản, cái nào tạo mới nhất hiện lên trên
     @Query("SELECT * FROM accounts ORDER BY created_at DESC")
     LiveData<List<Account>> getAll();
 

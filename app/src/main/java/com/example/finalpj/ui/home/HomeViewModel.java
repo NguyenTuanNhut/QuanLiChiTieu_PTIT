@@ -16,6 +16,7 @@ import com.example.finalpj.data.db.entity.Category;
 import com.example.finalpj.data.db.entity.CategoryExpense;
 import com.example.finalpj.data.db.entity.Transaction;
 import com.example.finalpj.data.db.entity.TransactionWithCategory;
+import com.example.finalpj.data.repository.AuthRepository;
 import com.example.finalpj.data.repository.BudgetRepository;
 import com.example.finalpj.data.repository.CategoryRepository;
 import com.example.finalpj.data.repository.TransactionRepository;
@@ -36,6 +37,8 @@ public class HomeViewModel extends AndroidViewModel {
     private TransactionRepository repository;
     private BudgetRepository budgetRepository;
     private CategoryRepository categoryRepository;
+    private AuthRepository authRepository;
+    private int currentUserId;
     
     // Lưu giữ tháng/năm đang được chọn để xem báo cáo
     private MutableLiveData<String> currentMonthYear = new MutableLiveData<>();
@@ -51,6 +54,8 @@ public class HomeViewModel extends AndroidViewModel {
         repository = new TransactionRepository(application);
         budgetRepository = new BudgetRepository(application);
         categoryRepository = new CategoryRepository(application);
+        authRepository = new AuthRepository(application);
+        currentUserId = authRepository.getCurrentUserId();
         
         // Mặc định thiết lập tháng xem báo cáo là tháng hiện tại
         Calendar cal = Calendar.getInstance();
@@ -63,19 +68,19 @@ public class HomeViewModel extends AndroidViewModel {
     // Lấy LiveData tổng thu nhập dựa trên tháng đang chọn
     public LiveData<Double> getTotalIncome() {
         return Transformations.switchMap(currentMonthYear,
-                monthYear -> repository.getTotalIncome(monthYear));
+                monthYear -> repository.getTotalIncome(monthYear, currentUserId));
     }
 
     // Lấy LiveData tổng chi tiêu dựa trên tháng đang chọn
     public LiveData<Double> getTotalExpense() {
         return Transformations.switchMap(currentMonthYear,
-                monthYear -> repository.getTotalExpense(monthYear));
+                monthYear -> repository.getTotalExpense(monthYear, currentUserId));
     }
 
     // Lấy LiveData số dư dựa trên tháng đang chọn
     public LiveData<Double> getBalance() {
         return Transformations.switchMap(currentMonthYear,
-                monthYear -> repository.getBalance(monthYear));
+                monthYear -> repository.getBalance(monthYear, currentUserId));
     }
 
     // Lấy danh sách giao dịch của tháng đang chọn
@@ -85,7 +90,7 @@ public class HomeViewModel extends AndroidViewModel {
             if (parts.length != 2) {
                 return new MutableLiveData<>(new ArrayList<>());
             }
-            return repository.getByMonth(parts[0], parts[1]);
+            return repository.getByMonth(parts[0], parts[1], currentUserId);
         });
     }
 
@@ -95,7 +100,7 @@ public class HomeViewModel extends AndroidViewModel {
      */
     public LiveData<List<TransactionWithCategory>> getSearchResults() {
         MediatorLiveData<List<TransactionWithCategory>> result = new MediatorLiveData<>();
-        LiveData<List<TransactionWithCategory>> allSource = repository.getAll();
+        LiveData<List<TransactionWithCategory>> allSource = repository.getAll(currentUserId);
         
         result.addSource(searchQuery, query -> {
             filterTransactions(result, allSource.getValue(), query);
@@ -163,7 +168,7 @@ public class HomeViewModel extends AndroidViewModel {
         return Transformations.switchMap(currentMonthYear, monthYear -> {
             String[] parts = monthYear.split("-");
             if (parts.length != 2) return new MutableLiveData<>(new ArrayList<>());
-            return budgetRepository.getAllBudgetsByMonth(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
+            return budgetRepository.getAllBudgetsByMonth(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), currentUserId);
         });
     }
 
@@ -174,7 +179,7 @@ public class HomeViewModel extends AndroidViewModel {
 
     // Lấy chi tiêu theo danh mục (cho thống kê)
     public LiveData<List<com.example.finalpj.data.db.entity.CategoryExpense>> getExpenseByCategory() {
-        return Transformations.switchMap(currentMonthYear, monthYear -> repository.getExpenseByCategory(monthYear));
+        return Transformations.switchMap(currentMonthYear, monthYear -> repository.getExpenseByCategory(monthYear, currentUserId));
     }
 
     /**
@@ -235,5 +240,50 @@ public class HomeViewModel extends AndroidViewModel {
 
     public String getCurrentMonthYear() {
         return currentMonthYear.getValue();
+    }
+
+    // Xóa một giao dịch
+    public void deleteTransaction(Transaction transaction) {
+        repository.delete(transaction);
+    }
+
+    // --- Infinite Scroll Logic ---
+    private MutableLiveData<List<TransactionWithCategory>> pagedTransactions = new MutableLiveData<>(new ArrayList<>());
+    private int currentPage = 0;
+    private static final int PAGE_SIZE = 20;
+    private boolean isLastPage = false;
+    private boolean isLoading = false;
+
+    public LiveData<List<TransactionWithCategory>> getPagedTransactions() {
+        if (pagedTransactions.getValue().isEmpty()) {
+            loadNextPage();
+        }
+        return pagedTransactions;
+    }
+
+    public void loadNextPage() {
+        if (isLoading || isLastPage) return;
+
+        isLoading = true;
+        new Thread(() -> {
+            List<TransactionWithCategory> newData = repository.getPaged(currentUserId, PAGE_SIZE, currentPage * PAGE_SIZE);
+            if (newData == null || newData.isEmpty()) {
+                isLastPage = true;
+            } else {
+                List<TransactionWithCategory> currentList = pagedTransactions.getValue();
+                List<TransactionWithCategory> updatedList = new ArrayList<>(currentList);
+                updatedList.addAll(newData);
+                pagedTransactions.postValue(updatedList);
+                currentPage++;
+            }
+            isLoading = false;
+        }).start();
+    }
+
+    public void refreshTransactions() {
+        currentPage = 0;
+        isLastPage = false;
+        pagedTransactions.setValue(new ArrayList<>());
+        loadNextPage();
     }
 }

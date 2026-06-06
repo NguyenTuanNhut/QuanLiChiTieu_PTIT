@@ -18,13 +18,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.finalpj.data.db.entity.Transaction;
+import com.example.finalpj.data.db.entity.TransactionWithCategory;
 import com.example.finalpj.ui.add.AddTransactionActivity;
 import java.util.Calendar;
+import java.util.List;
+import java.util.ArrayList;
 
 import com.example.finalpj.R;
 import com.example.finalpj.ui.adapter.BudgetAdapter;
 import com.example.finalpj.ui.adapter.TransactionAdapter;
 import com.example.finalpj.utils.CurrencyUtils;
+import com.example.finalpj.utils.SwipeToDeleteCallback;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import android.widget.Toast;
+import android.util.TypedValue;
 
 /**
  * Lớp điều khiển chính cho màn hình Trang chủ.
@@ -35,6 +42,8 @@ public class HomeFragment extends Fragment {
     private TextView tvBalance, tvIncome, tvExpense, tvMonthLabel;
     private TransactionAdapter adapter;
     private BudgetAdapter budgetAdapter;
+    private SearchView searchView;
+    private RecyclerView rvRecent;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -49,7 +58,7 @@ public class HomeFragment extends Fragment {
         tvMonthLabel = view.findViewById(R.id.tv_month_label);
 
         // Cấu hình ô Tìm kiếm (SearchView)
-        SearchView searchView = view.findViewById(R.id.search_view);
+        searchView = view.findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -66,10 +75,32 @@ public class HomeFragment extends Fragment {
         });
 
         // Thiết lập danh sách Giao dịch gần đây sử dụng RecyclerView
-        RecyclerView rvRecent = view.findViewById(R.id.rv_recent);
+        rvRecent = view.findViewById(R.id.rv_recent);
         rvRecent.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new TransactionAdapter();
         rvRecent.setAdapter(adapter);
+
+        // Cài đặt tính năng vuốt để Sửa/Xóa
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallback(getContext()) {
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                TransactionWithCategory item = adapter.getTransactionAt(position);
+                
+                if (direction == ItemTouchHelper.LEFT) {
+                    // Vuốt trái -> Xóa
+                    viewModel.deleteTransaction(item.transaction);
+                    Toast.makeText(getContext(), "Đã xóa giao dịch", Toast.LENGTH_SHORT).show();
+                } else if (direction == ItemTouchHelper.RIGHT) {
+                    // Vuốt phải -> Sửa
+                    Intent intent = new Intent(getContext(), AddTransactionActivity.class);
+                    intent.putExtra(AddTransactionActivity.EXTRA_TRANSACTION_ID, item.transaction.id);
+                    startActivity(intent);
+                    adapter.notifyItemChanged(position); // Khôi phục trạng thái item
+                }
+            }
+        });
+        itemTouchHelper.attachToRecyclerView(rvRecent);
 
         // Thiết lập danh sách Ngân sách (Budget) sử dụng RecyclerView
         RecyclerView rvBudgets = view.findViewById(R.id.rv_budgets);
@@ -115,8 +146,26 @@ public class HomeFragment extends Fragment {
 
         // Theo dõi danh sách giao dịch (bao gồm cả kết quả tìm kiếm)
         viewModel.getSearchResults().observe(getViewLifecycleOwner(), transactions -> {
-            if (transactions != null) {
+            if (transactions != null && !searchView.getQuery().toString().isEmpty()) {
                 adapter.setTransactions(transactions);
+            }
+        });
+
+        // Theo dõi danh sách giao dịch có phân trang (Infinite Scroll) khi không tìm kiếm
+        viewModel.getPagedTransactions().observe(getViewLifecycleOwner(), transactions -> {
+            if (transactions != null && searchView.getQuery().toString().isEmpty()) {
+                adapter.setTransactions(transactions);
+            }
+        });
+
+        // Tự động tải thêm khi cuộn tới cuối danh sách
+        rvRecent.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (!recyclerView.canScrollVertically(1)) { // 1 là hướng cuộn xuống
+                    viewModel.loadNextPage();
+                }
             }
         });
 
@@ -126,6 +175,12 @@ public class HomeFragment extends Fragment {
                 budgetAdapter.setItems(budgets);
             }
         });
+    }
+
+    private int getThemeColor(int attr) {
+        TypedValue typedValue = new TypedValue();
+        requireContext().getTheme().resolveAttribute(attr, typedValue, true);
+        return typedValue.data;
     }
 
     /**

@@ -33,15 +33,15 @@ public class BudgetRepository {
         executor.execute(() -> budgetDao.delete(budget));
     }
 
-    public LiveData<Budget> getTotalBudget(int month, int year) {
-        return budgetDao.getTotalBudget(month, year);
+    public LiveData<Budget> getTotalBudget(int month, int year, int userId) {
+        return budgetDao.getTotalBudget(month, year, userId);
     }
 
-    public LiveData<Budget> getCategoryBudget(int month, int year, int categoryId) {
-        return budgetDao.getCategoryBudget(month, year, categoryId);
+    public LiveData<Budget> getCategoryBudget(int month, int year, int categoryId, int userId) {
+        return budgetDao.getCategoryBudget(month, year, categoryId, userId);
     }
 
-    public LiveData<List<Budget>> getAllBudgetsByMonth(int month, int year) {
-        return budgetDao.getAllBudgetsByMonth(month, year);
+    public LiveData<List<Budget>> getAllBudgetsByMonth(int month, int year, int userId) {
+        return budgetDao.getAllBudgetsByMonth(month, year, userId);
     }
 }

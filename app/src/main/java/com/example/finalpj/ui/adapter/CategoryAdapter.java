@@ -17,6 +17,10 @@ import com.example.finalpj.data.db.entity.Category;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adapter hiển thị danh sách các Danh mục (Category) dưới dạng Grid.
+ * Dùng trong màn hình Thêm giao dịch để người dùng chọn loại chi tiêu/thu nhập.
+ */
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> {
     private List<Category> categories = new ArrayList<>();
     private OnCategoryClickListener listener;
@@ -43,6 +47,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Nạp layout cho từng item danh mục
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_category, parent, false);
         return new ViewHolder(view);
     }
@@ -52,29 +57,30 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         Category cat = categories.get(position);
         holder.tvName.setText(cat.name);
 
-        // Hiển thị icon
+        // Hiển thị icon tương ứng với danh mục
         int resId = holder.itemView.getContext().getResources().getIdentifier(
                 cat.icon, "drawable", holder.itemView.getContext().getPackageName());
         if (resId != 0) {
             holder.imgIcon.setImageResource(resId);
         }
 
-        // Vẽ hình tròn màu
+        // Tạo hình nền tròn với màu sắc đặc trưng của danh mục
         GradientDrawable bg = new GradientDrawable();
         bg.setShape(GradientDrawable.OVAL);
         bg.setColor(Color.parseColor(cat.color));
         holder.viewBg.setBackground(bg);
 
-        // Highlight nếu được chọn
+        // Hiển thị trạng thái được chọn (Highlight)
         if (cat.id == selectedCategoryId) {
-            holder.itemView.setBackgroundColor(Color.parseColor("#E3F2FD"));
+            holder.itemView.setBackgroundColor(Color.parseColor("#E3F2FD")); // Màu xanh nhạt khi chọn
         } else {
             holder.itemView.setBackgroundColor(Color.TRANSPARENT);
         }
 
+        // Xử lý sự kiện khi nhấn chọn danh mục
         holder.itemView.setOnClickListener(v -> {
             selectedCategoryId = cat.id;
-            notifyDataSetChanged();
+            notifyDataSetChanged(); // Vẽ lại danh sách để cập nhật trạng thái chọn
             if (listener != null)
                 listener.onCategoryClick(cat);
         });

@@ -5,7 +5,19 @@
         android:icon="@android:drawable/ic_menu_today"
         android:title="Trang chủ" />
     <item
+        android:id="@+id/HistoryFragment"
+        android:icon="@android:drawable/ic_menu_recent_history"
+        android:title="Lịch sử" />
+    <item
+        android:id="@+id/GoalsFragment"
+        android:icon="@android:drawable/ic_menu_view"
+        android:title="Mục tiêu" />
+    <item
         android:id="@+id/StatsFragment"
         android:icon="@android:drawable/ic_menu_sort_by_size"
         android:title="Thống kê" />
+    <item
+        android:id="@+id/ProfileFragment"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="Cá nhân" />
 </menu>

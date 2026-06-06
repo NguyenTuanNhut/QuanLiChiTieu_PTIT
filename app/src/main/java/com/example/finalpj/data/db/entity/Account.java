@@ -5,26 +5,36 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+/**
+ * Lớp Entity định nghĩa bảng 'accounts' (Tài khoản).
+ * Cho phép người dùng quản lý nhiều nguồn tiền khác nhau (vd: Tiền mặt, Thẻ ngân hàng, Ví điện tử).
+ */
 @Entity(tableName = "accounts")
 public class Account {
     @PrimaryKey(autoGenerate = true)
     public int id;
 
+    // Tên tài khoản (vd: VCB Bank, Ví MoMo)
     @ColumnInfo(name = "name")
     public String name;
 
+    // Loại tài khoản (CASH: Tiền mặt, BANK: Ngân hàng...)
     @ColumnInfo(name = "type")
-    public String type; // e.g., CASH, CARD, BANK
+    public String type;
 
+    // Số dư hiện có trong tài khoản
     @ColumnInfo(name = "balance")
     public double balance;
 
+    // Icon hiển thị cho tài khoản
     @ColumnInfo(name = "icon")
     public String icon;
 
+    // Màu sắc nhận diện tài khoản trên giao diện
     @ColumnInfo(name = "color")
     public String color;
 
+    // Thời gian tạo tài khoản
     @ColumnInfo(name = "created_at")
     public long createdAt;
 

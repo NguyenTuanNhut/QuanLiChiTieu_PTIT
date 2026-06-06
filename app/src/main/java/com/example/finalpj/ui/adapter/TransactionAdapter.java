@@ -42,6 +42,10 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         notifyDataSetChanged();
     }
 
+    public TransactionWithCategory getTransactionAt(int position) {
+        return transactions.get(position);
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

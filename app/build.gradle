@@ -53,4 +53,8 @@ dependencies {
 
     implementation libs.mpandroidchart
     implementation libs.recyclerview
+    implementation libs.bcrypt
+    implementation libs.play.services.auth
+    implementation libs.picasso
+    implementation libs.circleimageview
 }

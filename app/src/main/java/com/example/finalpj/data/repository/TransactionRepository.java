@@ -51,37 +51,41 @@ public class TransactionRepository {
     }
 
     // Lấy danh sách giao dịch kèm danh mục theo tháng/năm
-    public LiveData<List<TransactionWithCategory>> getByMonth(String month, String year) {
-        return transactionDao.getByMonth(month, year);
+    public LiveData<List<TransactionWithCategory>> getByMonth(String month, String year, int userId) {
+        return transactionDao.getByMonth(month, year, userId);
     }
 
     // Lấy tổng chi tiêu của tháng
-    public LiveData<Double> getTotalExpense(String monthYear) {
-        return transactionDao.getTotalExpense(monthYear);
+    public LiveData<Double> getTotalExpense(String monthYear, int userId) {
+        return transactionDao.getTotalExpense(monthYear, userId);
     }
 
     // Lấy tổng thu nhập của tháng
-    public LiveData<Double> getTotalIncome(String monthYear) {
-        return transactionDao.getTotalIncome(monthYear);
+    public LiveData<Double> getTotalIncome(String monthYear, int userId) {
+        return transactionDao.getTotalIncome(monthYear, userId);
     }
 
     // Lấy số dư hiện tại trong tháng
-    public LiveData<Double> getBalance(String monthYear) {
-        return transactionDao.getBalance(monthYear);
+    public LiveData<Double> getBalance(String monthYear, int userId) {
+        return transactionDao.getBalance(monthYear, userId);
     }
 
     // Lấy dữ liệu thống kê chi tiêu theo danh mục
-    public LiveData<List<com.example.finalpj.data.db.entity.CategoryExpense>> getExpenseByCategory(String monthYear) {
-        return transactionDao.getExpenseByCategory(monthYear);
+    public LiveData<List<com.example.finalpj.data.db.entity.CategoryExpense>> getExpenseByCategory(String monthYear, int userId) {
+        return transactionDao.getExpenseByCategory(monthYear, userId);
     }
 
     // Tìm kiếm giao dịch
-    public LiveData<List<TransactionWithCategory>> search(String query) {
-        return transactionDao.searchTransactions(query);
+    public LiveData<List<TransactionWithCategory>> search(String query, int userId) {
+        return transactionDao.searchTransactions(query, userId);
     }
 
     // Lấy toàn bộ lịch sử giao dịch
-    public LiveData<List<TransactionWithCategory>> getAll() {
-        return transactionDao.getAllTransactions();
+    public LiveData<List<TransactionWithCategory>> getAll(int userId) {
+        return transactionDao.getAllTransactions(userId);
+    }
+
+    public List<TransactionWithCategory> getPaged(int userId, int limit, int offset) {
+        return transactionDao.getTransactionsPaged(userId, limit, offset);
     }
 }

@@ -3,15 +3,26 @@ package com.example.finalpj.data.db.entity;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+/**
+ * Lớp Entity định nghĩa bảng 'categories' (Danh mục).
+ * Giúp phân loại các giao dịch như: Ăn uống, Lương, Giải trí...
+ */
 @Entity(tableName = "categories")
 public class Category {
     @PrimaryKey(autoGenerate = true)
     public int id;
 
-    public String name;    // "Ăn uống", "Di chuyển"...
-    public String icon;    // tên icon resource
-    public String color;   // mã màu hex "#FF5733"
-    public String type;    // "INCOME" hoặc "EXPENSE"
+    // Tên hiển thị của danh mục (vd: Ăn uống)
+    public String name;
+
+    // Tên file icon trong thư mục drawable (vd: ic_food)
+    public String icon;
+
+    // Mã màu Hex để hiển thị giao diện (vd: #FF5252)
+    public String color;
+
+    // Phân loại danh mục thuộc nhóm Thu nhập hay Chi tiêu
+    public String type;
 
     public Category() {}
 

@@ -12,9 +12,27 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
+        android:id="@+id/HistoryFragment"
+        android:name="com.example.finalpj.ui.history.HistoryFragment"
+        android:label="Lịch sử"
+        tools:layout="@layout/fragment_history" />
+
+    <fragment
         android:id="@+id/StatsFragment"
         android:name="com.example.finalpj.ui.stats.StatsFragment"
         android:label="Thống kê"
         tools:layout="@layout/fragment_stats" />
+
+    <fragment
+        android:id="@+id/GoalsFragment"
+        android:name="com.example.finalpj.ui.goals.GoalsFragment"
+        android:label="Mục tiêu"
+        tools:layout="@layout/fragment_goals" />
+
+    <fragment
+        android:id="@+id/ProfileFragment"
+        android:name="com.example.finalpj.ui.profile.ProfileFragment"
+        android:label="Cá nhân"
+        tools:layout="@layout/fragment_profile" />
 
 </navigation>

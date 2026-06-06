@@ -11,6 +11,9 @@ import com.example.finalpj.data.db.entity.RecurringTransaction;
 
 import java.util.List;
 
+/**
+ * Interface DAO để thao tác với bảng 'recurring_transactions'.
+ */
 @Dao
 public interface RecurringTransactionDao {
 
@@ -23,6 +26,7 @@ public interface RecurringTransactionDao {
     @Delete
     void delete(RecurringTransaction rt);
 
+    // Lấy danh sách các giao dịch lặp lại đang ở trạng thái hoạt động (Active)
     @Query("SELECT * FROM recurring_transactions WHERE is_active = 1")
     LiveData<List<RecurringTransaction>> getActiveRecurring();
 

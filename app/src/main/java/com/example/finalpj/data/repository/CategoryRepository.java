@@ -32,4 +32,8 @@ public class CategoryRepository {
     public LiveData<List<Category>> getAll() {
         return categoryDao.getAll();
     }
+
+    public int getCategoryIdByName(String name) {
+        return categoryDao.getCategoryIdByName(name);
+    }
 }

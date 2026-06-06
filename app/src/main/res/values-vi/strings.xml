@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Prudential Finance</string>
+    <string name="action_settings">Cài đặt</string>
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_stats">Thống kê</string>
+    <string name="nav_goals">Mục tiêu</string>
+    <string name="nav_history">Lịch sử</string>
+
+    <string name="total_balance">Tổng số dư</string>
+    <string name="income">Thu nhập</string>
+    <string name="expense">Chi tiêu</string>
+    <string name="search_hint">Tìm kiếm giao dịch…</string>
+    <string name="recent_transactions">Giao dịch gần đây</string>
+    <string name="budget_limit">Ngân sách</string>
+
+    <string name="delete_confirm">Bạn có chắc chắn muốn xóa?</string>
+    <string name="transaction_deleted">Đã xóa giao dịch</string>
+    <string name="edit">Sửa</string>
+    <string name="delete">Xóa</string>
+
+    <string name="first_fragment_label">Màn hình một</string>
+    <string name="second_fragment_label">Màn hình hai</string>
+    <string name="next">Tiếp tục</string>
+    <string name="previous">Quay lại</string>
+    <string name="lorem_ipsum">Nội dung mẫu...</string>
+</resources>

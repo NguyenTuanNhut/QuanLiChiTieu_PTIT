@@ -1,12 +1,28 @@
 <resources>
-    <string name="app_name">FinalPj</string>
+    <string name="app_name">Prudential Finance</string>
     <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_goals">Goals</string>
+    <string name="nav_history">History</string>
+
+    <string name="total_balance">Total Balance</string>
+    <string name="income">Income</string>
+    <string name="expense">Expense</string>
+    <string name="search_hint">Search transactions...</string>
+    <string name="recent_transactions">Recent Transactions</string>
+    <string name="budget_limit">Budget</string>
+
+    <string name="delete_confirm">Are you sure you want to delete?</string>
+    <string name="transaction_deleted">Transaction deleted</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+
+    <!-- Project original strings to fix build error -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
         volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus

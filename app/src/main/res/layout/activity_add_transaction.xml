@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="#FFFFFF">
+    android:background="?android:attr/windowBackground">
 
     <!-- Chọn loại: Thu / Chi -->
     <com.google.android.material.tabs.TabLayout
@@ -13,8 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginBottom="16dp"
-        app:tabSelectedTextColor="#2196F3"
-        app:tabIndicatorColor="#2196F3" />
+        app:tabSelectedTextColor="?attr/colorPrimary"
+        app:tabIndicatorColor="?attr/colorPrimary" />
 
     <!-- Nhập số tiền -->
     <com.google.android.material.textfield.TextInputLayout
@@ -32,9 +32,23 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Chọn danh mục -->
-    <TextView android:text="Danh mục"
-        android:textStyle="bold" android:layout_marginBottom="8dp"
-        android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+        <TextView android:text="Danh mục"
+            android:textStyle="bold"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_centerVertical="true"/>
+        <TextView
+            android:id="@+id/tv_add_category"
+            android:text="+ Thêm mới"
+            android:textColor="?attr/colorPrimary"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:padding="4dp"/>
+    </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_categories"
@@ -86,7 +100,7 @@
         android:layout_height="56dp"
         android:text="XÓA GIAO DỊCH"
         android:textColor="#F44336"
-        android:backgroundTint="#FFFFFF"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_marginTop="12dp"
         app:cornerRadius="12dp"
         android:visibility="gone" />
